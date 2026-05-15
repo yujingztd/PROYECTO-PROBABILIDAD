@@ -1,98 +1,13 @@
-dtriang <- function(x, min, max, mode) {
+Version: 1.0
 
-  if (min >= max) stop("min must be < max")
-  if (mode < min || mode > max) stop("mode must be in [min, max]")
+RestoreWorkspace: Default
+SaveWorkspace: Default
+AlwaysSaveHistory: Default
 
-  h <- 2 / (max - min)
+EnableCodeIndexing: Yes
+UseSpacesForTab: Yes
+NumSpacesForTab: 2
+Encoding: UTF-8
 
-  ifelse(
-    x < min | x > max, 0,
-    ifelse(
-      x <= mode,
-      h * (x - min) / (mode - min),
-      h * (max - x) / (max - mode)
-    )
-  )
-}
-
-
-
-ptriang <- function(q, min, max, mode) {
-
-  if (min >= max) stop("min must be < max")
-  if (mode < min || mode > max) stop("mode must be in [min, max]")
-
-  ifelse(
-    q <= min, 0,
-    ifelse(
-      q <= mode,
-      ((q - min)^2) / ((max - min)*(mode - min)),
-      ifelse(
-        q <= max,
-        1 - ((max - q)^2) / ((max - min)*(max - mode)),
-        1
-      )
-    )
-  )
-}
-
-
-
-qtriang <- function(p, min, max, mode) {
-
-  if (any(p < 0 | p > 1)) stop("p must be in [0,1]")
-  if (min >= max) stop("min must be < max")
-  if (mode < min || mode > max) stop("mode must be in [min, max]")
-
-  Fc <- (mode - min) / (max - min)
-
-  ifelse(
-    p <= Fc,
-    min + sqrt(p * (max - min) * (mode - min)),
-    max - sqrt((1 - p) * (max - min) * (max - mode))
-  )
-}
-
-
-#
-rtriang <- function(n, min, max, mode) {
-
-  if (n <= 0) stop("n must be positive")
-
-  u <- runif(n)
-  qtriang(u, min, max, mode)
-}
-
-
-test_that("density positive", {
-  x <- seq(0, 1, length.out = 100)
-  expect_true(all(dtriang(x, 0, 1, 0.5) >= 0))
-})
-
-test_that("density integrates approx to 1", {
-  x <- seq(0, 1, length.out = 1000)
-  dx <- x[2] - x[1]
-  approx_integral <- sum(dtriang(x, 0, 1, 0.5)) * dx
-  expect_true(abs(approx_integral - 1) < 0.01)
-})
-
-test_that("cdf limits", {
-  expect_equal(ptriang(-1, 0, 1, 0.5), 0)
-  expect_equal(ptriang(2, 0, 1, 0.5), 1)
-})
-
-test_that("quantile inverse", {
-  p <- seq(0.1, 0.9, by = 0.1)
-  x <- qtriang(p, 0, 1, 0.5)
-  expect_equal(ptriang(x, 0, 1, 0.5), p)
-})
-
-test_that("random generation length", {
-  expect_equal(length(rtriang(100, 0, 1, 0.5)), 100)
-})
-
-test_that("errors work", {
-  expect_error(dtriang(0.5, 1, 0, 0.5))
-  expect_error(dtriang(0.5, 0, 1, 2))
-  expect_error(qtriang(-0.1, 0, 1, 0.5))
-})
+RnwWeave: Sweave
+LaTeX: pdfLaTeX
